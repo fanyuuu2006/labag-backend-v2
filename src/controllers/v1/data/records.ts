@@ -7,7 +7,7 @@ export const getRecords = async (_: Request, res: Response) => {
   const { data, error } = await supabase.from("records").select("*");
   const resp: MyResponse<SupabaseRecord[]> = {
     data: data as SupabaseRecord[],
-    message: error ? error.message : "Records fetched successfully",
+    message: error ? error.message : '紀錄取得成功',
   };
   if (error) {
     res.status(500).json(resp);
