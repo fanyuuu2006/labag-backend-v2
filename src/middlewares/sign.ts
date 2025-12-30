@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import passport from "../configs/passport";
-import { MyResponse, SignOptions } from "../types";
+import { MyResponse } from "../types";
 import { scopes } from "../libs/passport";
+import { SignOptions } from "../types/user";
 
 export const signInMiddleware = (
   req: Request,
