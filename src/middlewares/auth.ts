@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { MyResponse } from "../types";
 import { verifyToken } from "../utils/jwt";
 import { supabase } from "../configs/supabase";
+import { SupabaseUser } from "../types/user";
 
 export const authMiddleware = async (
   req: Request,
@@ -27,9 +28,10 @@ export const authMiddleware = async (
     return;
   }
   try {
-    const id = verifyToken(token);
+    const { id } = verifyToken(token) as SupabaseUser;
     const { data, error } = await supabase
-      .from("users").select("*")
+      .from("users")
+      .select("*")
       .eq("id", id)
       .single();
 
@@ -44,7 +46,6 @@ export const authMiddleware = async (
 
     // 存到 req.user，供後續 API 使用
     req.user = data;
-
   } catch (error) {
     console.error(error);
     const resp: MyResponse<null> = {

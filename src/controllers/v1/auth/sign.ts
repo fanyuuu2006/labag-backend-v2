@@ -40,7 +40,7 @@ export const signCallBack = async (req: Request, res: Response) => {
 
     const token = generateToken(data, "24h");
     console.log(`${signBy}登入成功`);
-    res.redirect(`${FRONTEND_URL}/login/success?token=${token}`);
+    res.redirect(`${FRONTEND_URL}/login-success?token=${token}`);
   } catch (error) {
     console.error(error);
     const resp: MyResponse<null> = {
