@@ -4,3 +4,8 @@ export type SupabaseRecord = {
   score: number;
   user_id: number;
 };
+
+export type FrontendRecord = {
+    score: number;
+    rounds: Record<string, number>[];
+};
