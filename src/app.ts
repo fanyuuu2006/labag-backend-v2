@@ -5,6 +5,7 @@ import morgan from "morgan"; // HTTP 請求日誌中介軟體
 import { router as v1Router } from "./routers/v1"; // 應用的版本 1 API 路由
 import passport from "passport"; // 認證中介軟體（可搭配多種策略）
 import { FRONTEND_URL, JWT_KEY } from "./libs/env"; // 從環境變數導出的密鑰或設定
+import { globalRateLimit } from "./middlewares/rateLimit";
 
 // 建立一個 Express 應用實例，並在其他模組中匯出以供 server 使用
 export const app = express();
@@ -15,6 +16,8 @@ export const app = express();
     並將解析後的物件放到 req.body 上，供後續中介軟體或路由處理。
 */
 app.use(express.json());
+
+app.use(globalRateLimit);
 
 /*
   設定 CORS（跨來源資源共享）
