@@ -4,21 +4,60 @@ import { MyResponse } from "../../../types";
 import { SupabaseRecord } from "../../../types/records";
 import { SupabaseUser } from "../../../types/user";
 
-export const getRecords = async (_: Request, res: Response) => {
-  const { data, error } = await supabase.from("records").select("*");
-  const resp: MyResponse<SupabaseRecord[]> = {
-    data: data as SupabaseRecord[],
-    message: error ? error.message : "紀錄取得成功",
-  };
+export const getRecords = async (req: Request, res: Response) => {
+  const rawCount = req.query.count;
+
+  let limit: number | undefined;
+
+  if (rawCount !== undefined) {
+    const n = Number(rawCount);
+
+    // 檢查 count 是否為正整數
+    if (!Number.isInteger(n) || n <= 0) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "count 參數格式錯誤，應為正整數",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+
+    limit = n;
+  }
+
+  let query = supabase
+    .from("records")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  // 有 count 才加 limit
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: error.message || "取得紀錄時發生錯誤",
+    };
     res.status(500).json(resp);
     return;
   }
+
+  const resp: MyResponse<SupabaseRecord[]> = {
+    data: data as SupabaseRecord[],
+    message:
+      limit !== undefined ? `最近 ${limit} 筆紀錄取得成功` : "所有紀錄取得成功",
+  };
+
   res.json(resp);
 };
 
 export const getRecordsByUserId = async (req: Request, res: Response) => {
   const { user_id } = req.params;
+
   if (!user_id) {
     const resp: MyResponse<null> = {
       data: null,
@@ -27,21 +66,44 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
     res.status(400).json(resp);
     return;
   }
-  const { data, error } = await supabase
+  const count = req.query.count;
+  let limit: number | undefined;
+  if (count !== undefined) {
+    const n = Number(count);
+    if (!Number.isInteger(n) || n <= 0) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "count 參數格式錯誤，應為正整數",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+    limit = n;
+  }
+  let query = supabase
     .from("records")
     .select("*")
-    .eq("user_id", user_id);
+    .eq("user_id", user_id)
+    .order("created_at", { ascending: false });
+
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
+  const { data, error } = await query;
   if (error) {
     const resp: MyResponse<null> = {
       data: null,
-      message: `Supabase 錯誤：${error.message}`,
+      message: error.message || "取得用戶紀錄時發生錯誤",
     };
     res.status(500).json(resp);
     return;
   }
   const resp: MyResponse<SupabaseRecord[]> = {
     data: data as SupabaseRecord[],
-    message: "用戶紀錄取得成功",
+    message:
+      limit !== undefined
+        ? `用戶 ${user_id} 最近 ${limit} 筆紀錄取得成功`
+        : `用戶 ${user_id} 所有紀錄取得成功`,
   };
   res.json(resp);
 };
