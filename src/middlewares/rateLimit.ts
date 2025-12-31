@@ -1,9 +1,9 @@
 import { Request } from "express";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 export const globalRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 分鐘
   max: 40,
   message: { message: "請求過於頻繁" },
-  keyGenerator: (req: Request) => req?.ip ?? "", // 使用來自每個請求的 req.ip（即客戶端的 IP 地址）來生成唯一的識別鍵 這樣系統就會對每個 IP 地址進行獨立的限流控制
+  keyGenerator: (req: Request) => ipKeyGenerator(req.ip ?? ''), // 使用來自每個請求的 req.ip（即客戶端的 IP 地址）來生成唯一的識別鍵 這樣系統就會對每個 IP 地址進行獨立的限流控制
 });
