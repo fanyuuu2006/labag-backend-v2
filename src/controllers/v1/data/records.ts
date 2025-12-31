@@ -17,6 +17,35 @@ export const getRecords = async (_: Request, res: Response) => {
   res.json(resp);
 };
 
+export const getRecordsByUserId = async (req: Request, res: Response) => {
+  const { user_id } = req.params;
+  if (!user_id) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "用戶 ID 未提供",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+  const { data, error } = await supabase
+    .from("records")
+    .select("*")
+    .eq("user_id", user_id);
+  if (error) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: `Supabase 錯誤：${error.message}`,
+    };
+    res.status(500).json(resp);
+    return;
+  }
+  const resp: MyResponse<SupabaseRecord[]> = {
+    data: data as SupabaseRecord[],
+    message: "用戶紀錄取得成功",
+  };
+  res.json(resp);
+};
+
 export const postRecords = async (req: Request, res: Response) => {
   const { score } = req.body;
   if (!score || isNaN(score)) {
