@@ -3,7 +3,7 @@ import { supabase } from "../../../configs/supabase";
 import { MyResponse } from "../../../types";
 import { FrontendRecord, SupabaseRecord } from "../../../types/records";
 import { SupabaseUser } from "../../../types/user";
-import { RecordChecker } from "../../../libs/recordChecker";
+import { checker } from "labag";
 
 export const getRecords = async (req: Request, res: Response) => {
   const rawCount = req.query.count;
@@ -111,8 +111,7 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
 
 export const postRecords = async (req: Request, res: Response) => {
   const rawRecord = req.body as FrontendRecord;
-  const checker = new RecordChecker(rawRecord.times);
-  if (!checker.validate(rawRecord)) {
+  if (!checker.check(rawRecord)) {
     const resp: MyResponse<null> = {
       data: null,
       message: "分數格式錯誤",
