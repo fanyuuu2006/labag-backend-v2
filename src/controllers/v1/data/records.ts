@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { supabase } from "../../../configs/supabase";
 import { MyResponse } from "../../../types";
-import { FrontendRecord, SupabaseRecord } from "../../../types/records";
+import {  SupabaseRecord } from "../../../types/records";
 import { SupabaseUser } from "../../../types/user";
-import { checker } from "labag";
+import { checker, GameRecord } from "labag";
 
 export const getRecords = async (req: Request, res: Response) => {
   const rawCount = req.query.count;
@@ -110,7 +110,7 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
 };
 
 export const postRecords = async (req: Request, res: Response) => {
-  const rawRecord = req.body as FrontendRecord;
+  const rawRecord = req.body as GameRecord;
   if (!checker.check(rawRecord)) {
     const resp: MyResponse<null> = {
       data: null,

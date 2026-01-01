@@ -12,7 +12,7 @@ export type SignUser = {
 }
 
 export type SupabaseUser = {
-    id: number;
+    id: number; // primary key
     created_at: string;
     name?: string;
     email?: string;
