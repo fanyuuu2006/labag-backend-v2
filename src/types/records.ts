@@ -6,6 +6,7 @@ export type SupabaseRecord = {
 };
 
 export type FrontendRecord = {
-    score: number;
-    rounds: Record<string, number>[];
+  times: number;
+  score: number;
+  rounds: { randNums: Record<string, number> }[];
 };
