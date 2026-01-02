@@ -47,9 +47,9 @@ export const getUserById = async (req: Request, res: Response) => {
 
 
 export const getRecordsByUserId = async (req: Request, res: Response) => {
-  const { user_id } = req.params;
+  const { id } = req.params;
 
-  if (!user_id) {
+  if (!id) {
     const resp: MyResponse<null> = {
       data: null,
       message: "用戶 ID 未提供",
@@ -74,7 +74,7 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
   let query = supabase
     .from("records")
     .select("*")
-    .eq("user_id", user_id)
+    .eq("user_id", id)
     .order("created_at", { ascending: false });
 
   if (limit !== undefined) {
@@ -93,8 +93,39 @@ export const getRecordsByUserId = async (req: Request, res: Response) => {
     data: data as SupabaseRecord[],
     message:
       limit !== undefined
-        ? `用戶 ${user_id} 最近 ${limit} 筆紀錄取得成功`
-        : `用戶 ${user_id} 所有紀錄取得成功`,
+        ? `用戶 ${id} 最近 ${limit} 筆紀錄取得成功`
+        : `用戶 ${id} 所有紀錄取得成功`,
   };
   res.json(resp);
 };
+
+export const getStatsByUserId = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (!id) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "用戶 ID 未提供",
+        };
+        res.status(400).json(resp);
+        return;
+    }
+    const { data, error } = await supabase
+        .from("user_stats_view")
+        .select("*")
+        .eq("user_id", id)
+        .single();
+    if (error) {
+        const resp: MyResponse<null> = {
+        data: null,
+        message: "用戶統計資料不存在",
+        };
+        res.status(404).json(resp);
+        return;
+    }
+    const resp: MyResponse<typeof data> = {
+        data: data,
+        message: "用戶統計資料取得成功",
+    };
+    res.json(resp);
+}
+
