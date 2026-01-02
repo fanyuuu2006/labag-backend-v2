@@ -28,7 +28,7 @@ export const getUserById = async (req: Request, res: Response) => {
     .select(ALLOW_USER_FIELDS.join(", "))
     .eq("id", id)
     .single();
-  if (error || !data) {
+  if (error) {
     const resp: MyResponse<null> = {
       data: null,
       message: "用戶不存在",
@@ -37,7 +37,7 @@ export const getUserById = async (req: Request, res: Response) => {
     return;
   }
   console.log(data);
-  const resp: MyResponse = {
+  const resp: MyResponse<typeof data> = {
     data: data,
     message: "用戶資料取得成功",
   };
