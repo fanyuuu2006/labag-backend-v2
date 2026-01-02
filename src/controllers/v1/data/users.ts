@@ -3,6 +3,7 @@ import { SupabaseUser } from "../../../types/user";
 import { MyResponse } from "../../../types";
 import { supabase } from "../../../configs/supabase";
 import { ALLOW_USER_FIELDS } from "../../../libs";
+import { SupabaseRecord } from "../../../types/records";
 
 export const getUsersProfile = (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
@@ -40,6 +41,60 @@ export const getUserById = async (req: Request, res: Response) => {
   const resp: MyResponse<typeof data> = {
     data: data,
     message: "用戶資料取得成功",
+  };
+  res.json(resp);
+};
+
+
+export const getRecordsByUserId = async (req: Request, res: Response) => {
+  const { user_id } = req.params;
+
+  if (!user_id) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "用戶 ID 未提供",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+  const count = req.query.count;
+  let limit: number | undefined;
+  if (count !== undefined) {
+    const n = Number(count);
+    if (!Number.isInteger(n) || n <= 0) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "count 參數格式錯誤，應為正整數",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+    limit = n;
+  }
+  let query = supabase
+    .from("records")
+    .select("*")
+    .eq("user_id", user_id)
+    .order("created_at", { ascending: false });
+
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
+  const { data, error } = await query;
+  if (error) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: error.message || "取得用戶紀錄時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+  const resp: MyResponse<SupabaseRecord[]> = {
+    data: data as SupabaseRecord[],
+    message:
+      limit !== undefined
+        ? `用戶 ${user_id} 最近 ${limit} 筆紀錄取得成功`
+        : `用戶 ${user_id} 所有紀錄取得成功`,
   };
   res.json(resp);
 };
