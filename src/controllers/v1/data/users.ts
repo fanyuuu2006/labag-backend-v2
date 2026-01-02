@@ -5,7 +5,7 @@ import { supabase } from "../../../configs/supabase";
 import { ALLOW_USER_FIELDS } from "../../../libs";
 import { SupabaseRecord } from "../../../types/records";
 
-export const getUsersProfile = (req: Request, res: Response) => {
+export const getUsersMe = (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
   const resp: MyResponse<SupabaseUser> = {
     data: user,
