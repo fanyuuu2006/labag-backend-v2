@@ -9,8 +9,8 @@ export const getRanking = async (req: Request, res: Response) => {
   if (count !== undefined) {
     const n = Number(count);
     if (!Number.isInteger(n) || n <= 0) {
-      const resp: MyResponse<[]> = {
-        data: [],
+      const resp: MyResponse<null> = {
+        data: null,
         message: "count 參數格式錯誤，應為正整數",
       };
       res.status(400).json(resp);
@@ -25,8 +25,8 @@ export const getRanking = async (req: Request, res: Response) => {
   }
   const { data, error } = await query;
   if (error) {
-    const resp: MyResponse<[]> = {
-      data: [],
+    const resp: MyResponse<null> = {
+      data: null,
       message: error.message || "取得排名時發生錯誤",
     };
     res.status(500).json(resp);

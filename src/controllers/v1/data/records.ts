@@ -15,8 +15,8 @@ export const getRecords = async (req: Request, res: Response) => {
 
     // 檢查 count 是否為正整數
     if (!Number.isInteger(n) || n <= 0) {
-      const resp: MyResponse<[]> = {
-        data: [],
+      const resp: MyResponse<null> = {
+        data: null,
         message: "count 參數格式錯誤，應為正整數",
       };
       res.status(400).json(resp);
@@ -39,8 +39,8 @@ export const getRecords = async (req: Request, res: Response) => {
   const { data, error } = await query;
 
   if (error) {
-    const resp: MyResponse<[]> = {
-      data: [],
+    const resp: MyResponse<null> = {
+      data: null,
       message: error.message || "取得紀錄時發生錯誤",
     };
     res.status(500).json(resp);
@@ -60,8 +60,8 @@ export const getRecords = async (req: Request, res: Response) => {
 export const postRecords = async (req: Request, res: Response) => {
   const rawRecord = req.body as GameRecord;
   if (!checker.check(rawRecord)) {
-    const resp: MyResponse<{}> = {
-      data: {},
+    const resp: MyResponse<null> = {
+      data: null,
       message: "分數格式錯誤",
     };
     res.status(400).json(resp);
@@ -82,8 +82,8 @@ export const postRecords = async (req: Request, res: Response) => {
       .single();
 
     if (error) {
-      const resp: MyResponse<{}> = {
-        data: {},
+      const resp: MyResponse<null> = {
+        data: null,
         message: `Supabase 錯誤：${error.message}`,
       };
       res.status(500).json(resp);
@@ -96,13 +96,13 @@ export const postRecords = async (req: Request, res: Response) => {
     res.status(201).json(resp);
   } catch (error) {
     console.error(error);
-    const resp: MyResponse<{}> = {
-      data: {},
+    const resp: MyResponse<null> = {
+      data: null,
       message: `伺服器錯誤: ${
         error instanceof Error ? error.message : String(error)
       }`,
     };
-    res.status(400).json(resp);
+    res.status(500).json(resp);
     return;
   }
 };
