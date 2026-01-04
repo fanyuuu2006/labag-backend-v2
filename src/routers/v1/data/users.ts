@@ -11,7 +11,7 @@ import {
 export const router = Router();
 router
   .get("/",  getUsers)
+  .get("/me", authMiddleware, getUsersMe)
   .get("/:id", getUserById)
   .get("/:id/records", getRecordsByUserId)
   .get("/:id/stats", getStatsByUserId)
-  .get("/me", authMiddleware, getUsersMe)
