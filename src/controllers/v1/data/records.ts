@@ -28,7 +28,7 @@ export const getRecords = async (req: Request, res: Response) => {
 
   let query = supabase
     .from("records")
-    .select("*")
+    .select<'*', SupabaseRecord>("*")
     .order("created_at", { ascending: false });
 
   // 有 count 才加 limit
@@ -39,7 +39,7 @@ export const getRecords = async (req: Request, res: Response) => {
   const { data, error } = await query;
 
   if (error) {
-    const resp: MyResponse<null> = {
+    const resp: MyResponse<SupabaseRecord[]> = {
       data: null,
       message: error.message || "取得紀錄時發生錯誤",
     };
@@ -48,7 +48,7 @@ export const getRecords = async (req: Request, res: Response) => {
   }
 
   const resp: MyResponse<SupabaseRecord[]> = {
-    data: data as SupabaseRecord[],
+    data: data,
     message:
       limit !== undefined ? `最近 ${limit} 筆紀錄取得成功` : "所有紀錄取得成功",
   };
@@ -60,7 +60,7 @@ export const getRecords = async (req: Request, res: Response) => {
 export const postRecords = async (req: Request, res: Response) => {
   const rawRecord = req.body as GameRecord;
   if (!checker.check(rawRecord)) {
-    const resp: MyResponse<null> = {
+    const resp: MyResponse<SupabaseRecord> = {
       data: null,
       message: "分數格式錯誤",
     };
@@ -78,11 +78,11 @@ export const postRecords = async (req: Request, res: Response) => {
     const { data, error } = await supabase
       .from("records")
       .insert([record])
-      .select()
+      .select<'*', SupabaseRecord>("*")
       .single();
 
     if (error) {
-      const resp: MyResponse<null> = {
+      const resp: MyResponse<SupabaseRecord> = {
         data: null,
         message: `Supabase 錯誤：${error.message}`,
       };
@@ -90,13 +90,13 @@ export const postRecords = async (req: Request, res: Response) => {
       return;
     }
     const resp: MyResponse<SupabaseRecord> = {
-      data: data as SupabaseRecord,
+      data: data,
       message: "紀錄新增成功",
     };
     res.status(201).json(resp);
   } catch (error) {
     console.error(error);
-    const resp: MyResponse<null> = {
+    const resp: MyResponse<SupabaseRecord> = {
       data: null,
       message: `伺服器錯誤: ${
         error instanceof Error ? error.message : String(error)

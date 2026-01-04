@@ -4,12 +4,14 @@ import {
   getRecordsByUserId,
   getStatsByUserId,
   getUserById,
+  getUsers,
   getUsersMe,
 } from "../../../controllers/v1/data/users";
 
 export const router = Router();
 router
-  .get("/me", authMiddleware, getUsersMe)
+  .get("/",  getUsers)
   .get("/:id", getUserById)
   .get("/:id/records", getRecordsByUserId)
-  .get("/:id/stats", getStatsByUserId);
+  .get("/:id/stats", getStatsByUserId)
+  .get("/me", authMiddleware, getUsersMe)

@@ -1,4 +1,4 @@
 export type MyResponse<T> = {
-  data: T;
+  data: T | null;
   message?: string;
 };

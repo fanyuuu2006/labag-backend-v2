@@ -9,7 +9,7 @@ export const getRanking = async (req: Request, res: Response) => {
   if (count !== undefined) {
     const n = Number(count);
     if (!Number.isInteger(n) || n <= 0) {
-      const resp: MyResponse<null> = {
+      const resp: MyResponse<SupabaseRankingViewItem[]> = {
         data: null,
         message: "count 參數格式錯誤，應為正整數",
       };
@@ -18,14 +18,17 @@ export const getRanking = async (req: Request, res: Response) => {
     }
     limit = n;
   }
-  let query = supabase.from("ranking_view").select("*").order("score", { ascending: false });
+  let query = supabase
+    .from("ranking_view")
+    .select<"*", SupabaseRankingViewItem>("*")
+    .order("score", { ascending: false });
 
   if (limit !== undefined) {
     query = query.limit(limit);
   }
   const { data, error } = await query;
   if (error) {
-    const resp: MyResponse<null> = {
+    const resp: MyResponse<SupabaseRankingViewItem[]> = {
       data: null,
       message: error.message || "取得排名時發生錯誤",
     };
