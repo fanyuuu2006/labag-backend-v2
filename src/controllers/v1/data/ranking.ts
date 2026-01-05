@@ -42,3 +42,33 @@ export const getRanking = async (req: Request, res: Response) => {
   };
   res.json(resp);
 };
+
+export const getRankingById = async (req: Request, res: Response) => { 
+    const { id } = req.params;
+    if (!id) {
+      const resp: MyResponse<SupabaseRankingViewItem> = {
+        data: null,
+        message: "用戶 ID 未提供",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("ranking_view")
+      .select<"*", SupabaseRankingViewItem>("*")
+      .eq("user_id", id)
+      .single();
+    if (error) {
+      const resp: MyResponse<SupabaseRankingViewItem> = {
+        data: null,
+        message: error.message || "取得用戶排名時發生錯誤",
+      };
+      res.status(500).json(resp);
+      return;
+    }
+    const resp: MyResponse<SupabaseRankingViewItem> = {
+        data: data,
+        message: `用戶 ${id} 排名取得成功`,
+    };
+    res.json(resp);
+}
