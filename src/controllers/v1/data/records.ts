@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { supabase } from "../../../configs/supabase";
 import { MyResponse } from "../../../types";
-import {  SupabaseRecord } from "../../../types/records";
+import { SupabaseRecord } from "../../../types/records";
 import { SupabaseUser } from "../../../types/user";
 import { checker, GameRecord } from "labag";
+import { myHash } from "../../../utils/records";
 
 export const getRecords = async (req: Request, res: Response) => {
   const rawCount = req.query.count;
@@ -28,7 +29,7 @@ export const getRecords = async (req: Request, res: Response) => {
 
   let query = supabase
     .from("records")
-    .select<'*', SupabaseRecord>("*")
+    .select<"*", SupabaseRecord>("*")
     .order("created_at", { ascending: false });
 
   // 有 count 才加 limit
@@ -56,7 +57,6 @@ export const getRecords = async (req: Request, res: Response) => {
   res.json(resp);
 };
 
-
 export const postRecords = async (req: Request, res: Response) => {
   const rawRecord = req.body as GameRecord;
   if (!checker.check(rawRecord)) {
@@ -69,40 +69,39 @@ export const postRecords = async (req: Request, res: Response) => {
   }
   const user = req.user as SupabaseUser;
   const user_id = user.id;
+  const hs = myHash(user_id, rawRecord);
   const record: Omit<SupabaseRecord, "id" | "created_at"> = {
     score: rawRecord.score,
     user_id,
+    hash: hs,
   };
-
-  try {
-    const { data, error } = await supabase
-      .from("records")
-      .insert([record])
-      .select<'*', SupabaseRecord>("*")
-      .single();
-
-    if (error) {
-      const resp: MyResponse<SupabaseRecord> = {
+  const { data, error } = await supabase
+    .from("records")
+    .insert([record])
+    .select<"*", SupabaseRecord>("*")
+    .single();
+  if (error) {
+    // 判斷是否為唯一鍵衝突 (PostgreSQL error code 23505)
+    if (error.code === "23505") {
+      const resp: MyResponse<null> = {
         data: null,
-        message: `Supabase 錯誤：${error.message}`,
+        message: "此紀錄已存在 (重複提交)",
       };
-      res.status(500).json(resp);
+      res.status(409).json(resp);
       return;
     }
-    const resp: MyResponse<SupabaseRecord> = {
-      data: data,
-      message: "紀錄新增成功",
-    };
-    res.status(201).json(resp);
-  } catch (error) {
-    console.error(error);
+
     const resp: MyResponse<SupabaseRecord> = {
       data: null,
-      message: `伺服器錯誤: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
+      message: error.message || "新增紀錄時發生錯誤",
     };
     res.status(500).json(resp);
     return;
   }
+  
+  const resp: MyResponse<SupabaseRecord> = {
+    data: data,
+    message: "紀錄新增成功",
+  };
+  res.status(201).json(resp);
 };

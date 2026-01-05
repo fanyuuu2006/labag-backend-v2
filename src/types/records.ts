@@ -3,4 +3,5 @@ export type SupabaseRecord = {
   created_at: string;
   score: number;
   user_id: number;
+  hash?: string;
 };
