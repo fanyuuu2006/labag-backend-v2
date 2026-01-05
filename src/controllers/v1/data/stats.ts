@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { supabase } from "../../../configs/supabase";
 import { MyResponse } from "../../../types";
 import { SupabaseUserStatsViewItem } from "../../../types/user_stats_view";
+import { VALID_KEYS } from "../../../libs";
 
 export const getStats = async (req: Request, res: Response) => {
   const { data, error } = await supabase
@@ -45,17 +46,11 @@ export const getStatsByKey = async (req: Request, res: Response) => {
     limit = n;
   }
 
-  // 定義允許排序的欄位白名單
-  const validKeys: (keyof SupabaseUserStatsViewItem)[] = [
-    "play_count",
-    "highest_score",
-  ];
-
   // 驗證 key 是否合法
-  if (!validKeys.includes(key as keyof SupabaseUserStatsViewItem)) {
+  if (!VALID_KEYS.includes(key as (typeof VALID_KEYS)[number])) {
     const resp: MyResponse<null> = {
       data: null,
-      message: `無效的排序鍵值: ${key}。允許的值為: ${validKeys.join(", ")}`,
+      message: `無效的排序鍵值: ${key}。允許的值為: ${VALID_KEYS.join(", ")}`,
     };
     res.status(400).json(resp);
     return;
