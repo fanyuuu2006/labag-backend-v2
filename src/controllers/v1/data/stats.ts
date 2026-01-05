@@ -25,7 +25,25 @@ export const getStats = async (req: Request, res: Response) => {
 // 依鍵值 (keyof SupabaseUserStatsViewItem) 取得被排序用戶統計資料
 export const getStatsByKey = async (req: Request, res: Response) => {
   const { key } = req.params;
-  const { ascending } = req.query;
+  const { ascending, count } = req.query;
+
+  let limit: number | undefined;
+
+  if (count !== undefined) {
+    const n = Number(count);
+
+    // 檢查 count 是否為正整數
+    if (!Number.isInteger(n) || n <= 0) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "count 參數格式錯誤，應為正整數",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+
+    limit = n;
+  }
 
   // 定義允許排序的欄位白名單
   const validKeys: (keyof SupabaseUserStatsViewItem)[] = [
@@ -43,12 +61,20 @@ export const getStatsByKey = async (req: Request, res: Response) => {
     return;
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("user_stats_view")
     .select<"*", SupabaseUserStatsViewItem>("*")
     .order(key as keyof SupabaseUserStatsViewItem, {
       ascending: ascending === "true",
     });
+
+  // 有 count 才加 limit
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     const resp: MyResponse<SupabaseUserStatsViewItem[]> = {
       data: null,

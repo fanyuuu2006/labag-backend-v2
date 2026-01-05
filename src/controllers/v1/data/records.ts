@@ -7,12 +7,12 @@ import { checker, GameRecord } from "labag";
 import { myHash } from "../../../utils/records";
 
 export const getRecords = async (req: Request, res: Response) => {
-  const rawCount = req.query.count;
+  const { count } = req.query;
 
   let limit: number | undefined;
 
-  if (rawCount !== undefined) {
-    const n = Number(rawCount);
+  if (count !== undefined) {
+    const n = Number(count);
 
     // 檢查 count 是否為正整數
     if (!Number.isInteger(n) || n <= 0) {
