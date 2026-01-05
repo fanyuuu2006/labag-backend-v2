@@ -78,14 +78,17 @@ export const getStatsByKey = async (req: Request, res: Response) => {
   if (error) {
     const resp: MyResponse<SupabaseUserStatsViewItem[]> = {
       data: null,
-      message: `依 ${key} 取得用戶統計資料時發生錯誤`,
+      message: error.message || "取得用戶統計資料時發生錯誤",
     };
     res.status(500).json(resp);
     return;
   }
   const resp: MyResponse<SupabaseUserStatsViewItem[]> = {
     data: data,
-    message: `依 ${key} 取得用戶統計資料成功`,
+    message:
+      limit !== undefined
+        ? `依 ${key} 排序的前 ${limit} 筆用戶統計資料取得成功`
+        : `依 ${key} 排序的所有用戶統計資料取得成功`,
   };
   res.json(resp);
 };
