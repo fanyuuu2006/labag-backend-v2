@@ -85,7 +85,7 @@ export const postRecords = async (req: Request, res: Response) => {
     if (error.code === "23505") {
       const resp: MyResponse<null> = {
         data: null,
-        message: "此紀錄已存在 (重複提交)",
+        message: "此紀錄已存在",
       };
       res.status(409).json(resp);
       return;
@@ -98,7 +98,7 @@ export const postRecords = async (req: Request, res: Response) => {
     res.status(500).json(resp);
     return;
   }
-  
+
   const resp: MyResponse<SupabaseRecord> = {
     data: data,
     message: "紀錄新增成功",
