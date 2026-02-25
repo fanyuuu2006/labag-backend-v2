@@ -30,11 +30,8 @@ export const signCallBack = async (req: Request, res: Response) => {
       .single();
 
     if (error) {
-      const resp: MyResponse<null> = {
-        data: null,
-        message: `Supabase 錯誤：${error.message}`,
-      };
-      res.status(500).json(resp);
+      console.log(`Supabase 錯誤：${error.message}`);
+      res.redirect(`${FRONTEND_URL}`);
       return;
     }
 
@@ -43,13 +40,7 @@ export const signCallBack = async (req: Request, res: Response) => {
     res.redirect(`${FRONTEND_URL}/login-success?token=${token}`);
   } catch (error) {
     console.error(error);
-    const resp: MyResponse<null> = {
-      data: null,
-      message: `伺服器錯誤: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-    };
-    res.status(500).json(resp);
+    res.redirect(`${FRONTEND_URL}`);
     return;
   }
 };
