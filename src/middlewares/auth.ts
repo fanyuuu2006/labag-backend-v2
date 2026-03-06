@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { MyResponse } from "../types";
-import { verifyToken } from "../utils/jwt";
 import { supabase } from "../configs/supabase";
 import { SupabaseUser } from "../types/user";
+import { verifyAccessToken } from "../utils/jwt";
 
 export const authMiddleware = async (
   req: Request,
@@ -28,7 +28,7 @@ export const authMiddleware = async (
     return;
   }
   try {
-    const { id } = verifyToken(token) as SupabaseUser;
+    const { id } = verifyAccessToken(token) as SupabaseUser;
     const { data, error } = await supabase
       .from("users")
       .select("*")

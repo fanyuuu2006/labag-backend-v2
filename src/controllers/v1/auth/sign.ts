@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { SignOptions, SignUser, SupabaseUser } from "../../../types/user";
 import { MyResponse } from "../../../types";
 import { supabase } from "../../../configs/supabase";
-import { generateToken } from "../../../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../../utils/jwt";
 import { FRONTEND_URL } from "../../../libs/env";
 
 export const signCallBack = async (req: Request, res: Response) => {
@@ -35,12 +39,63 @@ export const signCallBack = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = generateToken(data, "24h");
+    const accessToken = generateAccessToken(data);
+    const refreshToken = generateRefreshToken(data);
     console.log(`${signBy}登入成功`);
-    res.redirect(`${FRONTEND_URL}/login-success?token=${token}`);
+    res.redirect(
+      `${FRONTEND_URL}/login-success?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+    );
   } catch (error) {
     console.error(error);
     res.redirect(`${FRONTEND_URL}`);
     return;
+  }
+};
+
+export const refreshAccessToken = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "未提供 refresh token",
+    };
+    res.status(401).json(resp);
+    return;
+  }
+
+  try {
+    const decoded = verifyRefreshToken(refreshToken) as SupabaseUser;
+
+    // 從 Supabase 重新獲取使用者資訊比較安全
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", decoded.id)
+      .single();
+
+    if (error || !data) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "無效的 refresh token 或用戶不存在",
+      };
+      res.status(403).json(resp);
+      return;
+    }
+
+    const newAccessToken = generateAccessToken(data, "15m");
+    const newRefreshToken = generateRefreshToken(data, "30d");
+
+    const resp: MyResponse<{ accessToken: string; refreshToken: string }> = {
+      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+      message: "成功刷新 access token",
+    };
+    res.status(200).json(resp);
+  } catch (error) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "無效的 refresh token",
+    };
+    res.status(403).json(resp);
   }
 };

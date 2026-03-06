@@ -25,17 +25,8 @@ passport.use(
   )
 );
 
-// 序列化與反序列化
-/**
- * 使用者登入 → Passport → serializeUser(user) → session 存 user.id
- * 使用者下一次請求 → session 拿 user.id → deserializeUser(id) → req.user = 完整 user
- */
-passport.serializeUser((user, done) => {
-  done(null, user);
-});
-
-passport.deserializeUser((user, done) => {
-  done(null, user as Express.User);
-});
+// 由於改用 JWT，不再需要序列化與反序列化
+// passport.serializeUser((user, done) => { ... });
+// passport.deserializeUser((user, done) => { ... });
     
 export default passport;
