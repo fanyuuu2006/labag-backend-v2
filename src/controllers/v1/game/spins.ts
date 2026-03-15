@@ -5,18 +5,46 @@ import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
 import { DEFAULT_SPIN_BET } from "../../../libs/spin";
 import { MyResponse } from "../../../types";
+import { SupabaseUserCoins } from "../../../types/user_coins";
+import { SupabaseCoinTransaction } from "../../../types/coin_transactions";
 
 export const postSpins = async (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
+
+  const { data: userCoins, error: userCoinsError } = await supabase
+    .from("user_coins")
+    .select<"*", SupabaseUserCoins>("*")
+    .eq("user_id", user.id)
+    .single();
+
+  if (userCoinsError || !userCoins) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: userCoinsError?.message || "取得用戶餘額時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+
+  if (userCoins.balance < DEFAULT_SPIN_BET) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "餘額不足，無法進行轉盤",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+
   const { data: patterns, error: patternsError } = await supabase
     .from("patterns")
     .select<"*", Pattern>("*");
 
   if (patternsError || !patterns) {
-    res.status(500).json({
+    const resp: MyResponse<null> = {
       data: null,
       message: patternsError?.message || "取得圖案列表時發生錯誤",
-    });
+    };
+    res.status(500).json(resp);
     return;
   }
 
@@ -25,10 +53,11 @@ export const postSpins = async (req: Request, res: Response) => {
     .select<"*", Payout>("*");
 
   if (payoutsError || !payouts) {
-    res.status(500).json({
+    const resp: MyResponse<null> = {
       data: null,
       message: payoutsError?.message || "取得賠率列表時發生錯誤",
-    });
+    };
+    res.status(500).json(resp);
     return;
   }
 
@@ -57,8 +86,65 @@ export const postSpins = async (req: Request, res: Response) => {
     return;
   }
 
-  const resp: MyResponse<SupabaseSpin> = {
-    data: data,
+  // 扣除用戶餘額並加上獎勵
+  const newBalance = userCoins.balance - DEFAULT_SPIN_BET + reward;
+  const { data: updatedUserCoins, error: updateUserCoinsError } = await supabase
+    .from("user_coins")
+    .update({
+      balance: newBalance,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", user.id)
+    .select<"*", SupabaseUserCoins>("*")
+    .single();
+
+  if (updateUserCoinsError || !updatedUserCoins) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: updateUserCoinsError?.message || "更新用戶餘額時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+  const transactions: Omit<SupabaseCoinTransaction, "id" | "created_at">[] = [
+    {
+      user_id: user.id,
+      amount: -DEFAULT_SPIN_BET,
+      type: "bet",
+      ref_id: data.id,
+    },
+  ];
+
+  if (reward > 0) {
+    transactions.push({
+      user_id: user.id,
+      amount: reward,
+      type: "reward",
+      ref_id: data.id,
+    });
+  }
+
+  const { error: txError } = await supabase
+    .from("coin_transactions")
+    .insert(transactions);
+
+  if (txError) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: txError.message || "紀錄交易時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+
+  const resp: MyResponse<{
+    spin: SupabaseSpin;
+    user_coins: SupabaseUserCoins;
+  }> = {
+    data: {
+      spin: data as SupabaseSpin,
+      user_coins: updatedUserCoins as SupabaseUserCoins,
+    },
     message: "轉盤成功",
   };
   res.json(resp);
