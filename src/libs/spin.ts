@@ -1,1 +1,1 @@
-export const DEFAULT_SPIN_BET = 50;
+export const DEFAULT_SPIN_BET = 20;

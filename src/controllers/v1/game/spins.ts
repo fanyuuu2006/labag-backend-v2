@@ -8,6 +8,14 @@ import { MyResponse } from "../../../types";
 import { SupabaseUserCoins } from "../../../types/user_coins";
 import { SupabaseCoinTransaction } from "../../../types/coin_transactions";
 
+export const getDefaultSpinBet = (_: Request, res: Response) => {
+  const resp: MyResponse<number> = {
+    data: DEFAULT_SPIN_BET,
+    message: "預設轉盤投注金額取得成功",
+  };
+  res.json(resp);
+};
+
 export const postSpins = async (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
 
