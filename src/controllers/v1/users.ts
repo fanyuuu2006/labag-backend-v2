@@ -65,7 +65,7 @@ export const getUserById = async (req: Request, res: Response) => {
   res.json(resp);
 };
 
-export const getUserCoinById = async (req: Request, res: Response) => {
+export const getUserCoinsById = async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!id) {
     const resp: MyResponse<null> = {
