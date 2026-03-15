@@ -1,3 +1,4 @@
+import { SupabaseStatsView } from "../types/stats_view";
 import { SupabaseUser } from "../types/user";
 
 export const ALLOW_USER_FIELDS = [
@@ -6,3 +7,9 @@ export const ALLOW_USER_FIELDS = [
   "name",
   "avatar",
 ] satisfies readonly (keyof SupabaseUser)[];
+
+
+export const VALID_STATS_KEYS = [
+  "play_count",
+  'user_coins',
+] satisfies readonly (keyof SupabaseStatsView)[];
