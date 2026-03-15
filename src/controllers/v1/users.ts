@@ -3,6 +3,7 @@ import { SupabaseAllowFieldsUser, SupabaseUser } from "../../types/user";
 import { MyResponse } from "../../types";
 import { supabase } from "../../configs/supabase";
 import { ALLOW_USER_FIELDS } from "../../libs";
+import { SupabaseUserCoins } from "../../types/user_coins";
 
 export const getUsers = async (_: Request, res: Response) => {
   const { data, error } = await supabase
@@ -60,6 +61,36 @@ export const getUserById = async (req: Request, res: Response) => {
   const resp: MyResponse<SupabaseAllowFieldsUser> = {
     data: data,
     message: "用戶資料取得成功",
+  };
+  res.json(resp);
+};
+
+export const getUserCoinById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "用戶 ID 未提供",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+  const { data, error } = await supabase
+    .from("user_coins")
+    .select<"*", SupabaseUserCoins>("*")
+    .eq("user_id", id)
+    .single();
+  if (error) {
+    const resp: MyResponse<SupabaseUserCoins> = {
+      data: null,
+      message: "用戶餘額不存在",
+    };
+    res.status(404).json(resp);
+    return;
+  }
+  const resp: MyResponse<SupabaseUserCoins> = {
+    data: data,
+    message: "用戶餘額取得成功",
   };
   res.json(resp);
 };
