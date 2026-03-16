@@ -5,6 +5,7 @@ import { supabase } from "../../configs/supabase";
 import { ALLOW_USER_FIELDS } from "../../libs";
 import { SupabaseUserCoins } from "../../types/user_coins";
 import { SupabaseStatsView } from "../../types/stats_view";
+import { SupabaseSpin } from "../../types/spins";
 
 export const getUsers = async (_: Request, res: Response) => {
   const { data, error } = await supabase
@@ -122,6 +123,37 @@ export const getUserStatsById = async (req: Request, res: Response) => {
   const resp: MyResponse<SupabaseStatsView> = {
     data: data,
     message: "成功取得用戶統計資料",
+  };
+  res.json(resp);
+};
+
+export const getUserSpinsById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "請提供有效的用戶 ID",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("spins")
+    .select<"*", SupabaseSpin>("*")
+    .eq("user_id", id)
+    .order("created_at", { ascending: false });
+  if (error) {
+    const resp: MyResponse<SupabaseSpin[]> = {
+      data: null,
+      message: error.message || "無法取得用戶遊戲紀錄",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+  const resp: MyResponse<SupabaseSpin[]> = {
+    data: data,
+    message: "成功取得用戶遊戲紀錄",
   };
   res.json(resp);
 };

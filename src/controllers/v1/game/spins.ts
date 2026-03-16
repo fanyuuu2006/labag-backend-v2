@@ -115,7 +115,7 @@ export const getSpinsById = async (req: Request, res: Response) => {
   if (!id) {
     const resp: MyResponse<null> = {
       data: null,
-      message: "請提供有效的用戶 ID",
+      message: "請提供有效的紀錄 ID",
     };
     res.status(400).json(resp);
     return;
@@ -124,8 +124,8 @@ export const getSpinsById = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("spins")
     .select<"*", SupabaseSpin>("*")
-    .eq("user_id", id)
-    .order("created_at", { ascending: false });
+    .eq("id", id);
+    
   if (error) {
     const resp: MyResponse<SupabaseSpin[]> = {
       data: null,
