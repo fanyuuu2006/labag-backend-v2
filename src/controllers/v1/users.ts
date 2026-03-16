@@ -138,11 +138,38 @@ export const getUserSpinsById = async (req: Request, res: Response) => {
     return;
   }
 
-  const { data, error } = await supabase
+  const { count } = req.query as {
+    count?: string;
+  };
+
+  let limit: number | undefined;
+
+  if (count !== undefined) {
+    const n = Number(count);
+    // 檢查 count 是否為正整數
+    if (!Number.isInteger(n) || n <= 0) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "count 參數無效，請提供正整數",
+      };
+      res.status(400).json(resp);
+      return;
+    }
+    limit = n;
+  }
+
+  let query = supabase
     .from("spins")
     .select<"*", SupabaseSpin>("*")
     .eq("user_id", id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false }); // 預設依照 created_at 降序排列
+
+  if (limit !== undefined) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     const resp: MyResponse<SupabaseSpin[]> = {
       data: null,
@@ -151,6 +178,7 @@ export const getUserSpinsById = async (req: Request, res: Response) => {
     res.status(500).json(resp);
     return;
   }
+
   const resp: MyResponse<SupabaseSpin[]> = {
     data: data,
     message: "成功取得用戶遊戲紀錄",
