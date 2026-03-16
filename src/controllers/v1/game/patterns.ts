@@ -12,7 +12,7 @@ export const getPatterns = async (_: Request, res: Response) => {
   if (patternsError || !patternsData) {
     const resp: MyResponse<null> = {
       data: null,
-      message: patternsError?.message || "取得圖案列表時發生錯誤",
+      message: patternsError?.message || "無法載入遊戲圖案列表",
     };
     res.status(500).json(resp);
     return;
@@ -25,7 +25,7 @@ export const getPatterns = async (_: Request, res: Response) => {
   if (payoutsError || !payoutsData) {
     const resp: MyResponse<null> = {
       data: null,
-      message: payoutsError?.message || "取得賠率列表時發生錯誤",
+      message: payoutsError?.message || "無法載入遊戲賠率列表",
     };
     res.status(500).json(resp);
     return;
@@ -45,7 +45,7 @@ export const getPatterns = async (_: Request, res: Response) => {
 
   const resp: MyResponse<PatternWithPayouts[]> = {
     data: patternsWithPayouts,
-    message: "圖案列表取得成功",
+    message: "成功取得圖案列表",
   };
   res.json(resp);
 };

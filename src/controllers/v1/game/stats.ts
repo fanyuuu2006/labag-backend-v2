@@ -11,14 +11,14 @@ export const getStats = async (req: Request, res: Response) => {
   if (error) {
     const resp: MyResponse<SupabaseStatsView[]> = {
       data: null,
-      message: "取得統計資料時發生錯誤",
+      message: "無法取得統計資料",
     };
     res.status(500).json(resp);
     return;
   }
   const resp: MyResponse<SupabaseStatsView[]> = {
     data: data,
-    message: "統計資料取得成功",
+    message: "成功取得統計資料",
   };
   res.json(resp);
 };
@@ -37,7 +37,7 @@ export const getStatsByKey = async (req: Request, res: Response) => {
     if (!Number.isInteger(n) || n <= 0) {
       const resp: MyResponse<null> = {
         data: null,
-        message: "count 參數格式錯誤，應為正整數",
+        message: "count 參數無效，請提供正整數",
       };
       res.status(400).json(resp);
       return;
@@ -50,7 +50,7 @@ export const getStatsByKey = async (req: Request, res: Response) => {
   if (!VALID_STATS_KEYS.includes(key as (typeof VALID_STATS_KEYS)[number])) {
     const resp: MyResponse<null> = {
       data: null,
-      message: `無效的排序鍵值: ${key}。允許的值為: ${VALID_STATS_KEYS.join(", ")}`,
+      message: `排序鍵值 ${key} 無效。允許的值為: ${VALID_STATS_KEYS.join(", ")}`,
     };
     res.status(400).json(resp);
     return;
@@ -82,8 +82,8 @@ export const getStatsByKey = async (req: Request, res: Response) => {
     data: data,
     message:
       limit !== undefined
-        ? `依 ${key} 排序的前 ${limit} 筆統計資料取得成功`
-        : `依 ${key} 排序的所有統計資料取得成功`,
+        ? `成功取得依 ${key} 排序的前 ${limit} 筆統計資料`
+        : `成功取得依 ${key} 排序的所有統計資料`,
   };
   res.json(resp);
 };

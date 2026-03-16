@@ -15,7 +15,7 @@ export const signCallBack = async (req: Request, res: Response) => {
   if (!req.user) {
     const resp: MyResponse<null> = {
       data: null,
-      message: `${signBy} 登入失敗：未取得用戶資訊`,
+      message: `${signBy} 登入失敗：無法取得用戶資訊`,
     };
     res.status(401).json(resp);
     return;
@@ -58,7 +58,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
   if (!refreshToken) {
     const resp: MyResponse<null> = {
       data: null,
-      message: "未提供 refresh token",
+      message: "請提供 Refresh Token",
     };
     res.status(401).json(resp);
     return;
@@ -77,7 +77,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     if (error || !data) {
       const resp: MyResponse<null> = {
         data: null,
-        message: "無效的 refresh token 或用戶不存在",
+        message: "Refresh Token 無效或用戶不存在",
       };
       res.status(403).json(resp);
       return;
@@ -88,13 +88,13 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
 
     const resp: MyResponse<{ accessToken: string; refreshToken: string }> = {
       data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
-      message: "成功刷新 access token",
+      message: "成功刷新 Access Token",
     };
     res.status(200).json(resp);
   } catch (error) {
     const resp: MyResponse<null> = {
       data: null,
-      message: "無效的 refresh token",
+      message: "Refresh Token 無效",
     };
     res.status(403).json(resp);
   }

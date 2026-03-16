@@ -12,7 +12,7 @@ import { changeUserCoins } from "../../../utils/user_coins";
 export const getDefaultSpinBet = (_: Request, res: Response) => {
   const resp: MyResponse<number> = {
     data: DEFAULT_SPIN_BET,
-    message: "預設轉盤投注金額取得成功",
+    message: "成功取得預設投注金額",
   };
   res.json(resp);
 };
@@ -29,7 +29,7 @@ export const postSpins = async (req: Request, res: Response) => {
   if (betUserCoinsError) {
     const resp: MyResponse<null> = {
       data: null,
-      message: betUserCoinsError.message || "更新用戶餘額時發生錯誤",
+      message: betUserCoinsError.message || "扣除投注金額失敗",
     };
     res.status(500).json(resp);
     return;
@@ -42,7 +42,7 @@ export const postSpins = async (req: Request, res: Response) => {
   if (patternsError || !patterns) {
     const resp: MyResponse<null> = {
       data: null,
-      message: patternsError?.message || "取得圖案列表時發生錯誤",
+      message: patternsError?.message || "無法載入遊戲圖案配置",
     };
     res.status(500).json(resp);
     return;
@@ -55,7 +55,7 @@ export const postSpins = async (req: Request, res: Response) => {
   if (payoutsError || !payouts) {
     const resp: MyResponse<null> = {
       data: null,
-      message: payoutsError?.message || "取得賠率列表時發生錯誤",
+      message: payoutsError?.message || "無法載入遊戲賠率配置",
     };
     res.status(500).json(resp);
     return;
@@ -80,7 +80,7 @@ export const postSpins = async (req: Request, res: Response) => {
   if (error || !data) {
     const resp: MyResponse<null> = {
       data: null,
-      message: error?.message || "儲存轉盤結果時發生錯誤",
+      message: error?.message || "遊戲結果存檔失敗",
     };
     res.status(500).json(resp);
     return;
@@ -96,7 +96,7 @@ export const postSpins = async (req: Request, res: Response) => {
     if (rewardUserCoinsError) {
       const resp: MyResponse<null> = {
         data: null,
-        message: rewardUserCoinsError.message || "更新用戶餘額時發生錯誤",
+        message: rewardUserCoinsError.message || "派發獎勵失敗，請聯繫管理員",
       };
       res.status(500).json(resp);
       return;
@@ -105,7 +105,7 @@ export const postSpins = async (req: Request, res: Response) => {
 
   const resp: MyResponse<SupabaseSpin> = {
     data,
-    message: "轉盤遊戲完成",
+    message: "遊戲回合完成",
   };
   res.json(resp);
 };
@@ -115,7 +115,7 @@ export const getSpinsById = async (req: Request, res: Response) => {
   if (!id) {
     const resp: MyResponse<null> = {
       data: null,
-      message: "用戶 ID 未提供",
+      message: "請提供有效的用戶 ID",
     };
     res.status(400).json(resp);
     return;
@@ -129,14 +129,14 @@ export const getSpinsById = async (req: Request, res: Response) => {
   if (error) {
     const resp: MyResponse<SupabaseSpin[]> = {
       data: null,
-      message: error.message || "取得轉盤紀錄時發生錯誤",
+      message: error.message || "無法取得遊戲紀錄",
     };
     res.status(500).json(resp);
     return;
   }
   const resp: MyResponse<SupabaseSpin[]> = {
     data: data,
-    message: "轉盤紀錄取得成功",
+    message: "成功取得遊戲紀錄",
   };
   res.json(resp);
 };
