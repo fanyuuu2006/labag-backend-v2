@@ -6,5 +6,4 @@ export type SupabaseCoinTransaction = {
   user_id: SupabaseUser["id"]; // foreign key to SupabaseUser.id
   amount: number;
   type: 'bet' | 'reward'; // example types of transactions
-  ref_id: number; // optional reference ID for related records (e.g., spin ID)
 };
