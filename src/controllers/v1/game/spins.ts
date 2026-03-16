@@ -5,8 +5,6 @@ import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
 import { DEFAULT_SPIN_BET } from "../../../libs/spin";
 import { MyResponse } from "../../../types";
-import { SupabaseUserCoins } from "../../../types/user_coins";
-import { SupabaseCoinTransaction } from "../../../types/coin_transactions";
 import { changeUserCoins } from "../../../utils/user_coins";
 
 export const getDefaultSpinBet = (_: Request, res: Response) => {
@@ -125,7 +123,7 @@ export const getSpinsById = async (req: Request, res: Response) => {
     .from("spins")
     .select<"*", SupabaseSpin>("*")
     .eq("id", id);
-    
+
   if (error) {
     const resp: MyResponse<SupabaseSpin[]> = {
       data: null,
