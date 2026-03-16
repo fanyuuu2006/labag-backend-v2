@@ -7,5 +7,6 @@ import {
 
 export const router = Router();
 router
+    
   .post("/", authMiddleware, postSpins)
-  .get("/default-bet", getDefaultSpinBet);
+  .get("/default-bet", getDefaultSpinBet)

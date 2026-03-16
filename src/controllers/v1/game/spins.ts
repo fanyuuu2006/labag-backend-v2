@@ -157,3 +157,34 @@ export const postSpins = async (req: Request, res: Response) => {
   };
   res.json(resp);
 };
+
+export const getSpinsById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: "用戶 ID 未提供",
+    };
+    res.status(400).json(resp);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("spins")
+    .select<"*", SupabaseSpin>("*")
+    .eq("user_id", id)
+    .order("created_at", { ascending: false });
+  if (error) {
+    const resp: MyResponse<SupabaseSpin[]> = {
+      data: null,
+      message: error.message || "取得轉盤紀錄時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+  const resp: MyResponse<SupabaseSpin[]> = {
+    data: data,
+    message: "轉盤紀錄取得成功",
+  };
+  res.json(resp);
+};
