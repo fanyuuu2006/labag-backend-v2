@@ -31,13 +31,16 @@ export const getPatterns = async (_: Request, res: Response) => {
     return;
   }
 
+  const totalWeight = patternsData.reduce((sum, p) => sum + p.weight, 0);
   const patternsWithPayouts: PatternWithPayouts[] = patternsData.map(
     (pattern) => {
       const patternPayouts = payoutsData.filter(
         (payout) => payout.pattern_id === pattern.id,
       );
+      const probability = totalWeight > 0 ? pattern.weight / totalWeight : 0;
       return {
         ...pattern,
+        probability,
         payouts: patternPayouts,
       };
     },
@@ -60,10 +63,10 @@ export const getPatternById = async (req: Request, res: Response) => {
     .eq("id", id)
     .single();
 
-  if (patternError) {
+  if (patternError || !patternData) {
     const resp: MyResponse<null> = {
       data: null,
-      message: patternError.message || "取得圖案時發生錯誤",
+      message: patternError?.message || "取得圖案時發生錯誤",
     };
     res.status(500).json(resp);
     return;
@@ -84,8 +87,26 @@ export const getPatternById = async (req: Request, res: Response) => {
     return;
   }
 
+  // 取得所有圖案以計算總權重，進而算出機率
+  const { data: allPatternsData, error: allPatternsError } = await supabase
+    .from("patterns")
+    .select<"weight", { weight: number }>("weight");
+
+  if (allPatternsError || !allPatternsData) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: allPatternsError?.message || "計算機率時發生錯誤",
+    };
+    res.status(500).json(resp);
+    return;
+  }
+
+  const totalWeight = allPatternsData.reduce((sum, p) => sum + p.weight, 0);
+  const probability = totalWeight > 0 ? patternData.weight / totalWeight : 0;
+
   const patternWithPayouts: PatternWithPayouts = {
     ...patternData,
+    probability,
     payouts: payoutsData || [],
   };
 
