@@ -9,6 +9,7 @@ import {
 } from "../../../utils/jwt";
 import { FRONTEND_URL } from "../../../libs/env";
 import { changeUserCoins } from "../../../utils/user_coins";
+import { INITIAL_COINS } from "../../../libs/sign";
 
 export const signCallBack = async (req: Request, res: Response) => {
   const signBy = req.params.signBy as SignOptions;
@@ -50,7 +51,7 @@ export const signCallBack = async (req: Request, res: Response) => {
     if (!userCoins) {
       const { error: ucError } = await changeUserCoins({
         user_id: data.id,
-        amount: 1000,
+        amount: INITIAL_COINS,
         type: "init",
       });
 
