@@ -28,7 +28,7 @@ export const getPatternById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { data, error } = await supabase
     .from("patterns")
-    .select<"*", Pattern>("*")
+    .select("*, payouts(*)")
     .eq("id", id)
     .single();
 
@@ -41,35 +41,10 @@ export const getPatternById = async (req: Request, res: Response) => {
     return;
   }
 
-  const resp: MyResponse<Pattern> = {
-    data: data,
+  const resp: MyResponse<Pattern & { payouts: Payout[] }> = {
+    data: data as Pattern & { payouts: Payout[] },
     message: "圖案取得成功",
   };
   res.json(resp);
   return;
-};
-
-export const getPatternPayoutsById = async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    const { data, error } = await supabase
-        .from("payouts")
-        .select<"*", Payout>("*")
-        .eq("pattern_id", id);
-
-    if (error) {
-        const resp: MyResponse<null> = {
-            data: null,
-            message: error.message || "取得圖案獎金時發生錯誤",
-        };
-        res.status(500).json(resp);
-        return;
-    }
-
-    const resp: MyResponse<Payout[]> = {
-        data: data,
-        message: "圖案獎金取得成功",
-    };
-    res.json(resp);
-    return;
 };
