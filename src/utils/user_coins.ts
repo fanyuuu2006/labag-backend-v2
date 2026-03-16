@@ -1,6 +1,5 @@
 import { PostgrestError } from "@supabase/supabase-js";
 import { supabase } from "../configs/supabase";
-import { SupabaseUserCoins } from "../types/user_coins";
 import { SupabaseCoinTransaction } from "../types/coin_transactions";
 
 // 定義輸入類型，排除自動生成的欄位

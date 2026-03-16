@@ -5,5 +5,5 @@ export type SupabaseCoinTransaction = {
   created_at: string;
   user_id: SupabaseUser["id"]; // foreign key to SupabaseUser.id
   amount: number;
-  type: 'bet' | 'reward'; // example types of transactions
+  type: 'bet' | 'reward' |  'init' | 'admin'; // example types of transactions
 };

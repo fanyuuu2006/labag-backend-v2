@@ -8,6 +8,7 @@ import {
   verifyRefreshToken,
 } from "../../../utils/jwt";
 import { FRONTEND_URL } from "../../../libs/env";
+import { changeUserCoins } from "../../../utils/user_coins";
 
 export const signCallBack = async (req: Request, res: Response) => {
   const signBy = req.params.signBy as SignOptions;
@@ -37,6 +38,26 @@ export const signCallBack = async (req: Request, res: Response) => {
       console.log(`Supabase 錯誤：${error.message}`);
       res.redirect(`${FRONTEND_URL}`);
       return;
+    }
+
+    // 檢查用戶是否已有金幣記錄，如果沒有則視為新用戶並給予 1000 金幣
+    const { data: userCoins } = await supabase
+      .from("user_coins")
+      .select("user_id")
+      .eq("user_id", data.id)
+      .single();
+
+    if (!userCoins) {
+      const { error: ucError } = await changeUserCoins({
+        user_id: data.id,
+        amount: 1000,
+        type: "init",
+      });
+
+      if (ucError) {
+        console.error(`初始化用戶金幣失敗: ${ucError.message}`);
+        // 這裡不需要返回錯誤給前端，因為用戶已經成功登入了，只是金幣初始化失敗了
+      }
     }
 
     const accessToken = generateAccessToken(data);
