@@ -65,7 +65,7 @@ export const signCallBack = async (req: Request, res: Response) => {
     const refreshToken = generateRefreshToken(data);
     console.log(`${signBy}登入成功`);
     res.redirect(
-      `${FRONTEND_URL}/login-success?accessToken=${accessToken}&refreshToken=${refreshToken}`,
+      `${FRONTEND_URL}/login/success?accessToken=${accessToken}&refreshToken=${refreshToken}`,
     );
   } catch (error) {
     console.error(error);
