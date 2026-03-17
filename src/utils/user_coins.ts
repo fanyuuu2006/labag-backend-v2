@@ -15,31 +15,46 @@ export const changeUserCoins = async (
     .from("user_coins")
     .select<"balance", { balance: number }>("balance")
     .eq("user_id", user_id)
-    .single();
+    .maybeSingle();
 
-  if (userCoinsError || !userCoins) {
-    return { error: userCoinsError || new Error("取得用戶餘額時發生錯誤") };
+  if (userCoinsError) {
+    return { error: userCoinsError };
   }
 
-  // 2. 餘額檢查 (針對扣除操作)
-  const currentBalance = userCoins.balance;
-  if (amount < 0 && currentBalance + amount < 0) {
-    return { error: new Error("餘額不足，無法進行操作") };
-  }
-
-  // 3. 更新餘額
-  const newBalance = currentBalance + amount;
-  // 注意：這裡使用 updated_at 以符合常見命名慣例，並假設型別定義正確
-  const { error: updateError } = await supabase
-    .from("user_coins")
-    .update({
-      balance: newBalance,
+  if (!userCoins) {
+    if (amount < 0) {
+      return { error: new Error("用戶不存在且金額為負，無法進行操作") };
+    }
+    const { error: insertError } = await supabase.from("user_coins").insert({
+      user_id,
+      balance: amount,
       updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", user_id);
+    });
 
-  if (updateError) {
-    return { error: updateError || new Error("更新用戶餘額時發生錯誤") };
+    if (insertError) {
+      return { error: insertError };
+    }
+  } else {
+    // 2. 餘額檢查 (針對扣除操作)
+    const currentBalance = userCoins.balance;
+    if (amount < 0 && currentBalance + amount < 0) {
+      return { error: new Error("餘額不足，無法進行操作") };
+    }
+
+    // 3. 更新餘額
+    const newBalance = currentBalance + amount;
+    // 注意：這裡使用 updated_at 以符合常見命名慣例，並假設型別定義正確
+    const { error: updateError } = await supabase
+      .from("user_coins")
+      .update({
+        balance: newBalance,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user_id);
+
+    if (updateError) {
+      return { error: updateError };
+    }
   }
 
   // 4. 紀錄交易
