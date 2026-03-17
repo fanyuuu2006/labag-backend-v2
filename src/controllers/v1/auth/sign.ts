@@ -8,8 +8,8 @@ import {
   verifyRefreshToken,
 } from "../../../utils/jwt";
 import { FRONTEND_URL } from "../../../libs/env";
-import { changeUserCoins } from "../../../utils/user_coins";
 import { INITIAL_COINS } from "../../../libs/sign";
+import { changeUserCoins } from "../../../utils/supabase";
 
 export const signCallBack = async (req: Request, res: Response) => {
   const signBy = req.params.signBy as SignOptions;

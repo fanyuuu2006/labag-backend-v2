@@ -5,7 +5,7 @@ import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
 import { DEFAULT_SPIN_BET } from "../../../libs/spin";
 import { MyResponse } from "../../../types";
-import { changeUserCoins } from "../../../utils/user_coins";
+import { changeUserCoins } from "../../../utils/supabase";
 
 export const getDefaultSpinBet = (_: Request, res: Response) => {
   const resp: MyResponse<number> = {
