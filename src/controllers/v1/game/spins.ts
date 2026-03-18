@@ -6,6 +6,7 @@ import { SupabaseSpin } from "../../../types/spins";
 import { MyResponse } from "../../../types";
 import { changeUserCoins } from "../../../utils/supabase";
 import { DEFAULT_SPIN_BET } from "../../../libs/user_coins";
+import { patterns, payouts } from "../../../libs/patterns";
 
 export const getDefaultSpinBet = (_: Request, res: Response) => {
   const resp: MyResponse<number> = {
@@ -28,32 +29,6 @@ export const postSpins = async (req: Request, res: Response) => {
     const resp: MyResponse<null> = {
       data: null,
       message: betUserCoinsError.message || "扣除投注金額失敗",
-    };
-    res.status(500).json(resp);
-    return;
-  }
-
-  const { data: patterns, error: patternsError } = await supabase
-    .from("patterns")
-    .select<"*", Pattern>("*");
-
-  if (patternsError || !patterns) {
-    const resp: MyResponse<null> = {
-      data: null,
-      message: patternsError?.message || "無法載入遊戲圖案配置",
-    };
-    res.status(500).json(resp);
-    return;
-  }
-
-  const { data: payouts, error: payoutsError } = await supabase
-    .from("payouts")
-    .select<"*", Payout>("*");
-
-  if (payoutsError || !payouts) {
-    const resp: MyResponse<null> = {
-      data: null,
-      message: payoutsError?.message || "無法載入遊戲賠率配置",
     };
     res.status(500).json(resp);
     return;
