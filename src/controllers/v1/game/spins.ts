@@ -5,23 +5,33 @@ import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
 import { MyResponse } from "../../../types";
 import { changeUserCoins } from "../../../utils/supabase";
-import { DEFAULT_SPIN_BET } from "../../../libs/user_coins";
+import { SPIN_BETS } from "../../../libs/user_coins";
 import { patterns, payouts } from "../../../libs/game";
 
-export const getDefaultSpinBet = (_: Request, res: Response) => {
-  const resp: MyResponse<number> = {
-    data: DEFAULT_SPIN_BET,
-    message: "成功取得預設投注金額",
+export const getSpinBets = (_: Request, res: Response) => {
+  const resp: MyResponse<number[]> = {
+    data: SPIN_BETS,
+    message: "成功取得可投注金額列表",
   };
   res.json(resp);
 };
 
 export const postSpins = async (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
+  const { bet } = req.body;
+
+  if (typeof bet !== "number" || !SPIN_BETS.includes(bet)) {
+    const resp: MyResponse<null> = {
+      data: null,
+      message: `無效的投注金額。允許的金額為: ${SPIN_BETS.join(", ")}`,
+    };
+    res.status(400).json(resp);
+    return;
+  }
 
   const { error: betUserCoinsError } = await changeUserCoins({
     user_id: user.id,
-    amount: -DEFAULT_SPIN_BET,
+    amount: -bet,
     type: "bet",
   });
 
@@ -35,14 +45,14 @@ export const postSpins = async (req: Request, res: Response) => {
   }
 
   const labag = new LaBaG(patterns, payouts);
-  const { reels, reward, multiplier } = labag.spin(DEFAULT_SPIN_BET);
+  const { reels, reward, multiplier } = labag.spin(bet);
 
   const spin: Omit<SupabaseSpin, "id" | "created_at"> = {
     user_id: user.id,
     reels,
     reward,
     multiplier,
-    bet: DEFAULT_SPIN_BET,
+    bet,
   };
 
   const { data, error } = await supabase
