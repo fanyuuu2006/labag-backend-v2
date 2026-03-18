@@ -1,1 +1,0 @@
-export const INITIAL_COINS = 4000;

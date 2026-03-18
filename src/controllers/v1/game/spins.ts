@@ -3,9 +3,9 @@ import { SupabaseUser } from "../../../types/user";
 import { supabase } from "../../../configs/supabase";
 import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
-import { DEFAULT_SPIN_BET } from "../../../libs/spin";
 import { MyResponse } from "../../../types";
 import { changeUserCoins } from "../../../utils/supabase";
+import { DEFAULT_SPIN_BET } from "../../../libs/user_coins";
 
 export const getDefaultSpinBet = (_: Request, res: Response) => {
   const resp: MyResponse<number> = {
