@@ -18,7 +18,7 @@ export const getSpinBets = (_: Request, res: Response) => {
 
 export const postSpins = async (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
-  const { bet } = req.body;
+  const { bet } = req.body || {};
 
   if (typeof bet !== "number" || !SPIN_BETS.includes(bet)) {
     const resp: MyResponse<null> = {
