@@ -38,7 +38,7 @@ export const postShares = async (req: Request, res: Response) => {
   res.json(resp);
 };
 
-// 驗證分享連結並且發放金幣export const getSharesById = async (req: Request, res: Response) => {
+// 驗證分享連結並且發放金幣
 export const getSharesById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -51,43 +51,42 @@ export const getSharesById = async (req: Request, res: Response) => {
     return;
   }
 
-  // 1️⃣ 查找尚未領取的分享
-  const { data: share, error } = await supabase
-    .from("shares")
-    .select<"*", SupabaseShare>("*")
-    .eq("id", id)
-    .is("claim_at", null) // 確保還沒被領取
-    .single();
-
-  if (error || !share) {
-    const resp: MyResponse<null> = {
-      data: null,
-      message: error?.message || "找不到有效的分享連結或已領取",
-    };
-    res.status(404).json(resp);
-    return;
-  }
-
   try {
+    // 1️⃣ 嘗試領取分享 (Check-And-Update / 原子操作)
+    // 這樣可以避免 Race Condition (並發請求重複領取)
+    const { data: share, error: updateError } = await supabase
+      .from("shares")
+      .update({ claim_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("claim_at", null) // 確保還沒被領取
+      .select<"*", SupabaseShare>("*")
+      .single();
+
+    if (updateError || !share) {
+      const resp: MyResponse<null> = {
+        data: null,
+        message: "無效的分享連結或已領取",
+      };
+      res.status(404).json(resp);
+      return;
+    }
+
     // 2️⃣ 發放金幣給分享者
     const { error: coinError } = await changeUserCoins({
       user_id: share.user_id,
-      amount: 1, // 這裡可自訂金幣數量
+      amount: 1,
       type: "shares",
     });
 
     if (coinError) {
-      throw new Error(coinError.message);
-    }
+      console.error("Coin error:", coinError);
+      // 嘗試回滾分享狀態
+      await supabase
+        .from("shares")
+        .update({ claim_at: null })
+        .eq("id", id);
 
-    // 3️⃣ 標記分享已被領取
-    const { error: updateError } = await supabase
-      .from("shares")
-      .update({ claim_at: new Date().toISOString() })
-      .eq("id", id);
-
-    if (updateError) {
-      throw new Error(updateError.message);
+      throw new Error(coinError.message || "金幣發放失敗");
     }
 
     const resp: MyResponse<SupabaseShare> = {
@@ -98,7 +97,7 @@ export const getSharesById = async (req: Request, res: Response) => {
   } catch (err: any) {
     const resp: MyResponse<null> = {
       data: null,
-      message: err.message || "發放金幣失敗",
+      message: err.message || "處理失敗",
     };
     res.status(500).json(resp);
   }
