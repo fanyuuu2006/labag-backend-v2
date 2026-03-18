@@ -3,7 +3,7 @@ import { supabase } from "../../../configs/supabase";
 import { Pattern, Payout } from "labag";
 import { MyResponse } from "../../../types";
 import { PatternWithPayouts } from "../../../types/patterns";
-import { patterns, payouts } from "../../../libs/patterns";
+import { patterns, payouts } from "../../../libs/game";
 
 export const getPatterns = async (_: Request, res: Response) => {
   const totalWeight = patterns.reduce((sum, p) => sum + p.weight, 0);

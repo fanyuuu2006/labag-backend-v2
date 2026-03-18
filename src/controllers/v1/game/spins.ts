@@ -6,7 +6,7 @@ import { SupabaseSpin } from "../../../types/spins";
 import { MyResponse } from "../../../types";
 import { changeUserCoins } from "../../../utils/supabase";
 import { DEFAULT_SPIN_BET } from "../../../libs/user_coins";
-import { patterns, payouts } from "../../../libs/patterns";
+import { patterns, payouts } from "../../../libs/game";
 
 export const getDefaultSpinBet = (_: Request, res: Response) => {
   const resp: MyResponse<number> = {
@@ -35,7 +35,7 @@ export const postSpins = async (req: Request, res: Response) => {
   }
 
   const labag = new LaBaG(patterns, payouts);
-  const { reels, reward } = labag.spin();
+  const { reels, reward } = labag.spin(DEFAULT_SPIN_BET);
 
   const spin: Omit<SupabaseSpin, "id" | "created_at"> = {
     user_id: user.id,
