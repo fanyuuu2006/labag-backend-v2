@@ -4,6 +4,7 @@ import { supabase } from "../../configs/supabase";
 import { SupabaseUser } from "../../types/user";
 import { SupabaseShare } from "../../types/shares";
 import { changeUserCoins } from "../../utils/supabase";
+import { SHARE_REWARD_COINS } from "../../libs/user_coins";
 
 export const postShares = async (req: Request, res: Response) => {
   const user = req.user as SupabaseUser;
@@ -74,7 +75,7 @@ export const getSharesById = async (req: Request, res: Response) => {
     // 2️⃣ 發放金幣給分享者
     const { error: coinError } = await changeUserCoins({
       user_id: share.user_id,
-      amount: 1,
+      amount: SHARE_REWARD_COINS,
       type: "shares",
     });
 
