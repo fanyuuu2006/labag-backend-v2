@@ -35,12 +35,13 @@ export const postSpins = async (req: Request, res: Response) => {
   }
 
   const labag = new LaBaG(patterns, payouts);
-  const { reels, reward } = labag.spin(DEFAULT_SPIN_BET);
+  const { reels, reward, multiplier } = labag.spin(DEFAULT_SPIN_BET);
 
   const spin: Omit<SupabaseSpin, "id" | "created_at"> = {
     user_id: user.id,
     reels,
     reward,
+    multiplier,
     bet: DEFAULT_SPIN_BET,
   };
 

@@ -8,4 +8,5 @@ export type SupabaseSpin = {
   bet: number;
   reward: number;
   reels: Pattern[];
+  multiplier: number;
 };
