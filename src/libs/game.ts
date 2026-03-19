@@ -42,16 +42,16 @@ export const patterns: Pattern[] = [
 ];
 
 export const payouts: Payout[] = [
-  { id: "1", match_count: 2, pattern_id: "1", multiplier: 0.75 },
-  { id: "2", match_count: 3, pattern_id: "1", multiplier: 3.4 },
-  { id: "3", match_count: 2, pattern_id: "2", multiplier: 1.16 },
-  { id: "4", match_count: 3, pattern_id: "2", multiplier: 9.0 },
-  { id: "5", match_count: 2, pattern_id: "3", multiplier: 1.41 },
-  { id: "6", match_count: 3, pattern_id: "3", multiplier: 16.0 },
-  { id: "7", match_count: 2, pattern_id: "4", multiplier: 1.6 },
-  { id: "8", match_count: 3, pattern_id: "4", multiplier: 23.1 },
-  { id: "9", match_count: 2, pattern_id: "5", multiplier: 2.0 },
-  { id: "10", match_count: 3, pattern_id: "5", multiplier: 45.0 },
-  { id: "11", match_count: 2, pattern_id: "6", multiplier: 5.0 },
+  { id: "1", match_count: 2, pattern_id: "1", multiplier: 0.65 },
+  { id: "2", match_count: 3, pattern_id: "1", multiplier: 3.1 },
+  { id: "3", match_count: 2, pattern_id: "2", multiplier: 1.0 },
+  { id: "4", match_count: 3, pattern_id: "2", multiplier: 8.6 },
+  { id: "5", match_count: 2, pattern_id: "3", multiplier: 1.4 },
+  { id: "6", match_count: 3, pattern_id: "3", multiplier: 19.0 },
+  { id: "7", match_count: 2, pattern_id: "4", multiplier: 2.0 },
+  { id: "8", match_count: 3, pattern_id: "4", multiplier: 35.0 },
+  { id: "9", match_count: 2, pattern_id: "5", multiplier: 2.5 },
+  { id: "10", match_count: 3, pattern_id: "5", multiplier: 50.65 },
+  { id: "11", match_count: 2, pattern_id: "6", multiplier: 6.0 },
   { id: "12", match_count: 3, pattern_id: "6", multiplier: 1000.0 },
 ];
