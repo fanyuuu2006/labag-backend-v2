@@ -46,16 +46,15 @@ export namespace LaBaG {
       patternCounts[pattern.id] = (patternCounts[pattern.id] || 0) + 1;
     }
 
-    // 小幅隨機抖動範圍：-5% 到 +15%
+    // 小幅隨機抖動範圍：-5% 到 +10%
     const MIN_JITTER = -0.05;
-    const MAX_JITTER = 0.15;
+    const MAX_JITTER = 0.10;
 
     let totalMultiplier = 0;
     for (const payout of payouts) {
       if (patternCounts[payout.pattern_id] === payout.match_count) {
         const base = payout.multiplier;
         const jitter = randInt(MIN_JITTER * 100, MAX_JITTER * 100) / 100; // 隨機抖動
-        console.log(jitter)
         const varied = base * (1 + jitter);
         totalMultiplier += varied;
       }
