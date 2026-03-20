@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { SupabaseUser } from "../../../types/user";
 import { supabase } from "../../../configs/supabase";
-import { LaBaG, Pattern, Payout } from "labag";
 import { SupabaseSpin } from "../../../types/spins";
 import { MyResponse } from "../../../types";
 import { changeUserCoins } from "../../../utils/supabase";
 import { SPIN_BETS } from "../../../libs/user_coins";
-import { patterns, payouts } from "../../../libs/game";
+import { LaBaG } from "../../../utils";
+import { patterns, payouts } from "../../../libs";
 
 export const getSpinBets = (_: Request, res: Response) => {
   const resp: MyResponse<number[]> = {
@@ -44,8 +44,7 @@ export const postSpins = async (req: Request, res: Response) => {
     return;
   }
 
-  const labag = new LaBaG(patterns, payouts);
-  const { reels, reward, multiplier } = labag.spin(bet);
+  const { reels, reward, multiplier } = LaBaG.spin({ bet, patterns, payouts });
 
   const spin: Omit<SupabaseSpin, "id" | "created_at"> = {
     user_id: user.id,

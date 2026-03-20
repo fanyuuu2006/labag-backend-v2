@@ -1,4 +1,4 @@
-import { Pattern } from "labag";
+import { Pattern } from "./patterns";
 import { SupabaseUser } from "./user";
 
 export type SupabaseSpin = {
