@@ -10,10 +10,12 @@ export namespace LaBaG {
     patterns: Pattern[];
     payouts: Payout[];
   }): { reels: Pattern[]; reward: number; multiplier: number } => {
+    // 預先計算 totalWeight，避免在每次抽樣都重複計算
+    const totalWeight = patterns.reduce((sum, p) => sum + p.weight, 0);
     const reels = [
-      randomPattern(patterns),
-      randomPattern(patterns),
-      randomPattern(patterns),
+      randomPattern(patterns, totalWeight),
+      randomPattern(patterns, totalWeight),
+      randomPattern(patterns, totalWeight),
     ];
     const multiplier = calculateMultiplier(reels, payouts);
     const reward = Math.floor(bet * multiplier);
@@ -24,12 +26,12 @@ export namespace LaBaG {
     };
   };
 
-  const randomPattern = (patterns: Pattern[]): Pattern => {
-    const totalWeight = patterns.reduce(
-      (sum, pattern) => sum + pattern.weight,
-      0,
-    );
-    const randNum = randInt(1, totalWeight);
+  // 支援傳入 precomputed totalWeight，以減少重複計算
+  const randomPattern = (patterns: Pattern[], totalWeight?: number): Pattern => {
+    const tw = typeof totalWeight === "number"
+      ? totalWeight
+      : patterns.reduce((sum, pattern) => sum + pattern.weight, 0);
+    const randNum = randInt(1, tw);
     let cumulativeWeight = 0;
     for (const pattern of patterns) {
       cumulativeWeight += pattern.weight;
@@ -51,10 +53,13 @@ export namespace LaBaG {
     const MAX_JITTER = 0.10;
 
     let totalMultiplier = 0;
-    for (const payout of payouts) {
+    for (let i = 0; i < payouts.length; i++) {
+      const payout = payouts[i];
       if (patternCounts[payout.pattern_id] === payout.match_count) {
         const base = payout.multiplier;
-        const jitter = randInt(MIN_JITTER * 100, MAX_JITTER * 100) / 100; // 隨機抖動
+        // 使用 Math.random 直接產生浮點數，避免字串轉換；四捨五入到 2 位小數
+        const jitterRaw = Math.random() * (MAX_JITTER - MIN_JITTER) + MIN_JITTER;
+        const jitter = Math.round(jitterRaw * 100) / 100;
         const varied = base * (1 + jitter);
         totalMultiplier += varied;
       }
