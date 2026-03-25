@@ -59,7 +59,6 @@ export const getUserById = async (req: Request, res: Response) => {
     res.status(404).json(resp);
     return;
   }
-  console.log(data);
   const resp: MyResponse<SupabaseAllowFieldsUser> = {
     data: data,
     message: "成功取得用戶資料",
